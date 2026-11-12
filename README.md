@@ -7,7 +7,17 @@
 
 ---
 
-## 1. Kiến trúc hệ thống và luồng hoạt động
+## 1. Phân công thuật toán
+
+| STT | Thành viên | Giải thuật phụ trách | Tệp mã nguồn Python |
+| :---: | :--- | :--- | :--- |
+| 1 | **Lê Quang Huy** | Mã hoá PlayFair | `backend/algorithms/playfair.py` |
+| 2 | **Ngô Đình Khôi** | Mã hoá RSA | `backend/algorithms/rsa.py` |
+| 3 | **Nguyễn Hữu Tiến Đạt** | Mã hoá DES và AES | `backend/algorithms/des.py`, `backend/algorithms/aes.py` |
+
+---
+
+## 2. Kiến trúc hệ thống và luồng hoạt động
 
 - **Tầng xử lý thuật toán:** Xây dựng bằng ngôn ngữ Python. Mỗi thuật toán được tách thành một module độc lập, tiếp nhận dữ liệu đầu vào và trả về kết quả cuối cùng cùng danh sách trạng thái từng bước để phục vụ mô phỏng.
 - **Tầng giao diện người dùng:** Xây dựng bằng HTML, CSS và JavaScript thuần. Ứng dụng hoạt động hoàn toàn ngoại tuyến với ba nút lựa chọn thuật toán chính.
@@ -20,7 +30,7 @@
 
 ---
 
-## 2. Cấu trúc thư mục và phân công tệp mã nguồn
+## 3. Cấu trúc thư mục và phân công tệp mã nguồn
 
 ```text
 Do_An_NT101/
@@ -70,7 +80,7 @@ Do_An_NT101/
 
 ---
 
-## 3. Chuẩn dữ liệu trao đổi giữa Python và giao diện
+## 4. Chuẩn dữ liệu trao đổi giữa Python và giao diện
 
 Mỗi hàm thực thi trong `backend/algorithms/` trả về một đối tượng JSON theo cấu trúc thống nhất:
 
