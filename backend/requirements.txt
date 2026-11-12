@@ -1,0 +1,2 @@
+# Dự án sử dụng thư viện chuẩn của Python để chạy trực tiếp không cần cài đặt thêm gói ngoài.
+# PyInstaller có thể dùng khi đóng gói thành DoAn_NT101.exe.

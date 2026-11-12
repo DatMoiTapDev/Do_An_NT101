@@ -1,0 +1,484 @@
+<!-- Giao diện chính gồm ba nút chọn thuật toán, vùng nhập liệu, kết quả và lưu đồ hoạt ảnh. -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đồ Án NT101 — Ứng Dụng Thực Thi &amp; Minh Hoạ Giải Thuật Mật Mã</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- Header -->
+    <header class="card app-header">
+      <div class="brand-wrap">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">Ứng Dụng Minh Hoạ Giải Thuật Mật Mã — NT101</h1>
+          <p class="brand-subtitle">Lưu đồ thuật toán trực quan: Trước biến đổi → Phép tính chi tiết → Kết quả phát sáng</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-pill">
+          <span id="runtime-dot" class="status-dot"></span>
+          <span id="runtime-label">Sẵn sàng ngoại tuyến</span>
+        </div>
+        <button id="theme-toggle" type="button" class="btn-ghost" onclick="NT101.toggleTheme()">Giao diện Sáng</button>
+      </div>
+    </header>
+
+    <!-- 3 nút bấm cơ bản chọn thuật toán -->
+    <nav aria-label="Chọn giải thuật" class="algo-nav">
+      <button id="btn-algo-playfair" type="button" class="algo-btn active" onclick="NT101.selectAlgorithm('playfair')">
+        <div class="algo-btn-left">
+          <span class="mono algo-num">01</span>
+          <div>
+            <div class="algo-name">Mã hoá PlayFair</div>
+            <div class="algo-desc">Ma trận 5×5, đường chiếu &amp; ô kết quả</div>
+          </div>
+        </div>
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        </svg>
+      </button>
+
+      <button id="btn-algo-rsa" type="button" class="algo-btn" onclick="NT101.selectAlgorithm('rsa')">
+        <div class="algo-btn-left">
+          <span class="mono algo-num">02</span>
+          <div>
+            <div class="algo-name">Mã hoá RSA</div>
+            <div class="algo-desc">Lưu đồ sinh khoá &amp; tính mô-đun</div>
+          </div>
+        </div>
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+        </svg>
+      </button>
+
+      <button id="btn-algo-symmetric" type="button" class="algo-btn" onclick="NT101.selectAlgorithm('symmetric')">
+        <div class="algo-btn-left">
+          <span class="mono algo-num">03</span>
+          <div>
+            <div class="algo-name">DES &amp; AES</div>
+            <div class="algo-desc">Mạng Feistel DES &amp; Trước → Tính → Sau AES</div>
+          </div>
+        </div>
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      </button>
+    </nav>
+
+    <!-- Khung làm việc chính -->
+    <div class="workspace-grid">
+
+      <!-- Cột trái: Dữ liệu đầu vào & Đáp án -->
+      <section class="left-col">
+        <div class="card">
+          <div class="panel-head">
+            <h2 class="panel-title">Dữ liệu đầu vào</h2>
+            <div class="segmented">
+              <button id="mode-encrypt" type="button" class="seg-btn active" onclick="NT101.setOperationMode('encrypt')">Mã hoá</button>
+              <button id="mode-decrypt" type="button" class="seg-btn" onclick="NT101.setOperationMode('decrypt')">Giải mã</button>
+            </div>
+          </div>
+
+          <!-- Form PlayFair -->
+          <div id="form-playfair" class="form-stack">
+            <div>
+              <label class="field-label" for="pf-key">Từ khoá</label>
+              <input id="pf-key" type="text" class="mono field-input" value="MONARCHY" />
+            </div>
+            <div>
+              <label class="field-label" for="pf-text">Văn bản đầu vào</label>
+              <textarea id="pf-text" rows="2" class="mono field-textarea">INSTRUMENTS</textarea>
+            </div>
+          </div>
+
+          <!-- Form RSA -->
+          <div id="form-rsa" class="form-stack hidden">
+            <div class="form-row-3">
+              <div>
+                <label class="field-label" for="rsa-p">p</label>
+                <input id="rsa-p" type="number" class="mono field-input" value="61" />
+              </div>
+              <div>
+                <label class="field-label" for="rsa-q">q</label>
+                <input id="rsa-q" type="number" class="mono field-input" value="53" />
+              </div>
+              <div>
+                <label class="field-label" for="rsa-e">e</label>
+                <input id="rsa-e" type="number" class="mono field-input" value="17" />
+              </div>
+            </div>
+            <div class="inline-helper">
+              <span>Dữ liệu: ký tự hoặc dãy số</span>
+              <button type="button" class="btn-secondary" onclick="NT101.randomizeRsaPrimes()">Đổi p, q mẫu</button>
+            </div>
+            <div>
+              <label class="field-label" for="rsa-text">Thông điệp</label>
+              <textarea id="rsa-text" rows="2" class="mono field-textarea">NT101</textarea>
+            </div>
+          </div>
+
+          <!-- Form DES & AES -->
+          <div id="form-symmetric" class="form-stack hidden">
+            <div class="form-row-2">
+              <div>
+                <span class="field-label">Giải thuật</span>
+                <div class="segmented" style="width: 100%; display: grid; grid-template-columns: 1fr 1fr;">
+                  <button id="sym-type-des" type="button" class="seg-btn" onclick="NT101.setSymmetricAlgo('des')">DES</button>
+                  <button id="sym-type-aes" type="button" class="seg-btn active" onclick="NT101.setSymmetricAlgo('aes')">AES</button>
+                </div>
+              </div>
+              <div>
+                <label class="field-label" for="sym-mode">Chế độ</label>
+                <select id="sym-mode" class="field-select" onchange="NT101.toggleIvField()">
+                  <option value="CBC">CBC</option>
+                  <option value="ECB">ECB</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label id="sym-key-label" class="field-label" for="sym-key">Khoá bí mật AES 128-bit</label>
+              <input id="sym-key" type="text" class="mono field-input" value="NT101-SECRET-KEY" />
+            </div>
+            <div id="sym-iv-wrap">
+              <label class="field-label" for="sym-iv">Vector khởi tạo IV</label>
+              <input id="sym-iv" type="text" class="mono field-input" value="1234567890ABCDEF" />
+            </div>
+            <div>
+              <label class="field-label" for="sym-text">Dữ liệu đầu vào</label>
+              <textarea id="sym-text" rows="2" class="mono field-textarea">An toan mang NT101</textarea>
+            </div>
+          </div>
+
+          <div id="error-box" class="error-box hidden"></div>
+
+          <button type="button" class="btn-primary" onclick="NT101.runAlgorithm()">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Chạy thuật toán</span>
+          </button>
+        </div>
+
+        <!-- Đáp án đầu ra -->
+        <div id="result-card" class="card smooth-node result-card">
+          <div class="result-head">
+            <div class="result-title-wrap">
+              <span class="status-dot"></span>
+              <h3 class="panel-title">Đáp án đầu ra</h3>
+            </div>
+            <div class="result-actions">
+              <button type="button" class="btn-ghost" onclick="NT101.swapResultToInput()">Đảo chiều</button>
+              <button id="copy-btn" type="button" class="btn-secondary" onclick="NT101.copyResult()">Sao chép</button>
+            </div>
+          </div>
+
+          <div id="result-output" class="mono result-output">
+            Nhấn nút "Chạy thuật toán" để xem đáp án.
+          </div>
+
+          <div id="result-meta" class="result-meta hidden"></div>
+        </div>
+      </section>
+
+      <!-- Cột phải: Lưu đồ hoạt ảnh từng bước -->
+      <section class="card">
+        <div class="stage-header">
+          <div>
+            <h2 class="panel-title">Lưu đồ thuật toán từng bước</h2>
+            <p id="step-counter" class="panel-sub">Tự động phát ngay khi chạy thuật toán</p>
+          </div>
+
+          <div class="controls-bar">
+            <button id="ctrl-prev" type="button" class="btn-ghost" onclick="NT101.prevStep()">Prev</button>
+            <button id="ctrl-play" type="button" class="btn-play" onclick="NT101.togglePlay()">Pause</button>
+            <button id="ctrl-next" type="button" class="btn-ghost" onclick="NT101.nextStep()">Next</button>
+            <button id="ctrl-replay" type="button" class="btn-ghost" onclick="NT101.replayAnimation()">Replay</button>
+            <select id="ctrl-speed" class="field-select speed-select" onchange="NT101.changeSpeed()">
+              <option value="2300">0.5x</option>
+              <option value="1450" selected>1x</option>
+              <option value="750">2x</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="progress-track">
+          <div id="progress-bar" class="progress-fill"></div>
+        </div>
+
+        <div class="step-banner">
+          <div>
+            <div id="step-title" class="step-title">Sẵn sàng mô phỏng</div>
+            <div id="step-desc" class="step-desc">Nhấn "Chạy thuật toán" để xem lưu đồ tính toán chi tiết và kết quả phát sáng qua từng bước.</div>
+          </div>
+          <span id="step-badge" class="mono step-badge">IDLE</span>
+        </div>
+
+        <div id="diagram-stage" class="diagram-stage">
+
+          <!-- 1. Sân khấu PlayFair -->
+          <div id="stage-playfair">
+            <div class="pf-top-flow">
+              <div id="pf-flow-in" class="smooth-node flow-box">
+                <div class="flow-label">1. Ô gốc</div>
+                <div id="pf-box-in" class="mono flow-val">--</div>
+              </div>
+              <div class="arrow-cell">
+                <svg width="36" height="22" viewBox="0 0 40 24">
+                  <line x1="2" y1="12" x2="32" y2="12" stroke="currentColor" stroke-width="2.2" />
+                  <polygon points="30,7 38,12 30,17" fill="currentColor" />
+                </svg>
+              </div>
+              <div id="pf-flow-rule" class="smooth-node flow-box">
+                <div class="flow-label">2. Tham chiếu toạ độ</div>
+                <div id="pf-box-rule" class="mono flow-val" style="font-size: 0.78rem;">Chờ xử lý</div>
+              </div>
+              <div class="arrow-cell">
+                <svg width="36" height="22" viewBox="0 0 40 24">
+                  <line x1="2" y1="12" x2="32" y2="12" stroke="currentColor" stroke-width="2.2" />
+                  <polygon points="30,7 38,12 30,17" fill="currentColor" />
+                </svg>
+              </div>
+              <div id="pf-flow-out" class="smooth-node flow-box">
+                <div class="flow-label">3. Ô kết quả</div>
+                <div id="pf-box-out" class="mono flow-val">--</div>
+              </div>
+            </div>
+
+            <div class="pf-body">
+              <div>
+                <div class="pf-matrix-wrap">
+                  <div id="pf-matrix-grid" class="pf-grid"></div>
+                  <svg id="pf-svg-overlay" viewBox="0 0 300 272" class="pf-svg-overlay"></svg>
+                </div>
+                <div class="legend-row">
+                  <span class="legend-item"><span class="swatch" style="background: var(--primary);"></span>Ô gốc</span>
+                  <span class="legend-item"><span class="swatch" style="background: var(--success);"></span>Ô kết quả phát sáng</span>
+                  <span class="legend-item"><span class="swatch" style="background: var(--secondary); border: 1px solid var(--border);"></span>Từ khoá</span>
+                </div>
+              </div>
+
+              <div class="form-stack">
+                <div class="calc-card">
+                  <div class="field-label" style="margin-bottom: 4px;">Phép tính dịch chuyển toạ độ</div>
+                  <div id="pf-coord-calc" class="mono" style="font-size: 0.78rem; font-weight: 600;">Đang chờ bắt đầu...</div>
+                </div>
+                <div>
+                  <div class="field-label">Chuỗi cặp đầu vào</div>
+                  <div id="pf-pairs-strip" class="strip-wrap"></div>
+                </div>
+                <div>
+                  <div class="field-label">Chuỗi kết quả ghép dần</div>
+                  <div id="pf-out-strip" class="strip-wrap"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Sân khấu RSA -->
+          <div id="stage-rsa" class="hidden form-stack" style="gap: 16px;">
+            <div>
+              <div class="field-label">Lưu đồ 1: Sinh cặp khoá RSA</div>
+              <div class="rsa-keygen-flow">
+                <div id="rsa-node-pq" class="smooth-node flow-box">
+                  <div class="flow-label">p, q</div>
+                  <div id="rsa-val-pq" class="mono flow-val">--</div>
+                </div>
+                <div class="arrow-cell">
+                  <svg width="26" height="20" viewBox="0 0 32 24">
+                    <line id="rsa-wire-1" x1="2" y1="12" x2="24" y2="12" stroke="currentColor" stroke-width="2.2" />
+                    <polygon points="22,7 30,12 22,17" fill="currentColor" />
+                  </svg>
+                </div>
+                <div id="rsa-node-n" class="smooth-node flow-box">
+                  <div class="flow-label">n = p × q</div>
+                  <div id="rsa-val-n" class="mono flow-val">--</div>
+                </div>
+                <div class="arrow-cell">
+                  <svg width="26" height="20" viewBox="0 0 32 24">
+                    <line id="rsa-wire-2" x1="2" y1="12" x2="24" y2="12" stroke="currentColor" stroke-width="2.2" />
+                    <polygon points="22,7 30,12 22,17" fill="currentColor" />
+                  </svg>
+                </div>
+                <div id="rsa-node-phi" class="smooth-node flow-box">
+                  <div class="flow-label">φ(n)</div>
+                  <div id="rsa-val-phi" class="mono flow-val">--</div>
+                </div>
+                <div class="arrow-cell">
+                  <svg width="26" height="20" viewBox="0 0 32 24">
+                    <line id="rsa-wire-3" x1="2" y1="12" x2="24" y2="12" stroke="currentColor" stroke-width="2.2" />
+                    <polygon points="22,7 30,12 22,17" fill="currentColor" />
+                  </svg>
+                </div>
+                <div id="rsa-node-keys" class="smooth-node flow-box">
+                  <div class="flow-label">Khoá e / d</div>
+                  <div id="rsa-val-keys" class="mono flow-val">--</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="calc-card">
+              <div class="field-label" style="margin-bottom: 4px;">Phép tính toán chi tiết tại bước hiện tại</div>
+              <div id="rsa-calc-formula" class="mono" style="font-size: 0.8rem; font-weight: 700; color: var(--primary);">Chờ thực thi thuật toán...</div>
+            </div>
+
+            <div>
+              <div class="field-label">Lưu đồ 2: Biến đổi từng ký tự — Lần 1 tính toán, Lần 2 sáng kết quả</div>
+              <div class="rsa-pipe-flow">
+                <div id="rsa-pipe-in" class="smooth-node flow-box">
+                  <div class="flow-label">Đầu vào M</div>
+                  <div id="rsa-box-in" class="mono flow-val">--</div>
+                </div>
+                <div class="arrow-cell">
+                  <svg width="34" height="22" viewBox="0 0 40 24">
+                    <line id="rsa-wire-4" x1="2" y1="12" x2="32" y2="12" stroke="currentColor" stroke-width="2.2" />
+                    <polygon points="30,7 38,12 30,17" fill="currentColor" />
+                  </svg>
+                </div>
+                <div id="rsa-pipe-fn" class="smooth-node flow-box">
+                  <div class="flow-label">Tính luỹ thừa mô-đun</div>
+                  <div id="rsa-box-fn" class="mono flow-val" style="font-size: 0.78rem;">--</div>
+                </div>
+                <div class="arrow-cell">
+                  <svg width="34" height="22" viewBox="0 0 40 24">
+                    <line id="rsa-wire-5" x1="2" y1="12" x2="32" y2="12" stroke="currentColor" stroke-width="2.2" />
+                    <polygon points="30,7 38,12 30,17" fill="currentColor" />
+                  </svg>
+                </div>
+                <div id="rsa-pipe-out" class="smooth-node flow-box">
+                  <div class="flow-label">Kết quả đầu ra</div>
+                  <div id="rsa-box-out" class="mono flow-val">--</div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="field-label">Chuỗi phần tử đã hoàn tất</div>
+              <div id="rsa-history-strip" class="strip-wrap"></div>
+            </div>
+          </div>
+
+          <!-- 3A. Sân khấu DES Feistel -->
+          <div id="stage-des" class="hidden form-stack" style="gap: 14px;">
+            <div class="inline-helper">
+              <span>Lưu đồ mạng Feistel 16 vòng — khối 64-bit</span>
+              <span id="des-round-pill" class="mono step-badge">Vòng 0 / 16</span>
+            </div>
+
+            <div class="des-layout">
+              <div>
+                <svg id="des-feistel-svg" viewBox="0 0 560 320" style="width: 100%; height: auto;">
+                  <path id="des-path-r-to-f" d="M 380 62 L 380 116 L 355 116" fill="none" stroke="var(--text-muted)" stroke-width="2.5" />
+                  <path id="des-path-k-to-f" d="M 445 142 L 355 142" fill="none" stroke="var(--text-muted)" stroke-width="2.5" />
+                  <path id="des-path-f-to-xor" d="M 245 130 L 181 130" fill="none" stroke="var(--text-muted)" stroke-width="2.5" />
+                  <path id="des-path-l-to-xor" d="M 160 62 L 160 109" fill="none" stroke="var(--text-muted)" stroke-width="2.5" />
+                  <path id="des-path-cross-rl" d="M 380 116 L 380 190 L 160 232 L 160 256" fill="none" stroke="var(--text-muted)" stroke-width="2.5" />
+                  <path id="des-path-cross-xr" d="M 160 152 L 160 190 L 380 232 L 380 256" fill="none" stroke="var(--text-muted)" stroke-width="2.5" />
+
+                  <g>
+                    <rect x="75" y="14" width="170" height="48" rx="10" fill="var(--bg-card)" stroke="var(--border)" stroke-width="2" />
+                    <text x="160" y="33" text-anchor="middle" font-size="12" fill="var(--text-muted)">Nửa trái vào L</text>
+                    <text id="des-txt-lprev" x="160" y="51" text-anchor="middle" font-size="14" font-weight="bold" fill="var(--text-main)" class="mono">--------</text>
+                  </g>
+                  <g>
+                    <rect x="295" y="14" width="170" height="48" rx="10" fill="var(--bg-card)" stroke="var(--border)" stroke-width="2" />
+                    <text x="380" y="33" text-anchor="middle" font-size="12" fill="var(--text-muted)">Nửa phải vào R</text>
+                    <text id="des-txt-rprev" x="380" y="51" text-anchor="middle" font-size="14" font-weight="bold" fill="var(--text-main)" class="mono">--------</text>
+                  </g>
+                  <g>
+                    <circle cx="160" cy="130" r="21" fill="var(--bg-card)" stroke="var(--border)" stroke-width="2" />
+                    <text x="160" y="135" text-anchor="middle" font-size="18" font-weight="bold" fill="var(--text-main)">⊕</text>
+                  </g>
+                  <g>
+                    <rect x="245" y="104" width="110" height="52" rx="10" fill="var(--bg-card)" stroke="var(--border)" stroke-width="2" />
+                    <text x="300" y="124" text-anchor="middle" font-size="12" fill="var(--text-muted)">Hàm F(R, K)</text>
+                    <text id="des-txt-f" x="300" y="144" text-anchor="middle" font-size="13" font-weight="bold" fill="var(--text-main)" class="mono">--------</text>
+                  </g>
+                  <g>
+                    <rect x="445" y="106" width="105" height="48" rx="10" fill="var(--bg-card)" stroke="var(--border)" stroke-width="2" />
+                    <text x="497" y="125" text-anchor="middle" font-size="12" fill="var(--text-muted)">Khoá con K</text>
+                    <text id="des-txt-k" x="497" y="143" text-anchor="middle" font-size="13" font-weight="bold" fill="var(--text-main)" class="mono">--------</text>
+                  </g>
+                  <g>
+                    <rect id="des-rect-lnext" x="75" y="256" width="170" height="48" rx="10" fill="var(--bg-card)" stroke="var(--border)" stroke-width="2" />
+                    <text x="160" y="275" text-anchor="middle" font-size="12" fill="var(--text-muted)">Nửa trái ra L'</text>
+                    <text id="des-txt-lnext" x="160" y="293" text-anchor="middle" font-size="14" font-weight="bold" fill="var(--text-main)" class="mono">--------</text>
+                  </g>
+                  <g>
+                    <rect id="des-rect-rnext" x="295" y="256" width="170" height="48" rx="10" fill="var(--bg-card)" stroke="var(--border)" stroke-width="2" />
+                    <text x="380" y="275" text-anchor="middle" font-size="12" fill="var(--text-muted)">Nửa phải ra R'</text>
+                    <text id="des-txt-rnext" x="380" y="293" text-anchor="middle" font-size="14" font-weight="bold" fill="var(--text-main)" class="mono">--------</text>
+                  </g>
+                </svg>
+              </div>
+
+              <div class="calc-card">
+                <div class="field-label">Phép tính cụ thể tại pha hiện tại</div>
+                <div id="des-calc-title" style="font-size: 0.78rem; font-weight: 700; color: var(--primary);">Đang chờ chạy thuật toán</div>
+                <pre id="des-calc-lines" class="mono calc-pre">--</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3B. Sân khấu AES Trước -> Phép tính -> Sau -->
+          <div id="stage-aes" class="hidden form-stack" style="gap: 14px;">
+            <div class="inline-helper">
+              <span>Lưu đồ chu trình AES-128 — Đối chiếu Trước &amp; Sau phép tính</span>
+              <span id="aes-round-pill" class="mono step-badge">Vòng 0 / 10</span>
+            </div>
+
+            <div class="aes-pipeline">
+              <div id="aes-pipe-Init" class="smooth-node aes-step-pill">1. Nạp State</div>
+              <div id="aes-pipe-SubBytes" class="smooth-node aes-step-pill">2. SubBytes</div>
+              <div id="aes-pipe-ShiftRows" class="smooth-node aes-step-pill">3. ShiftRows</div>
+              <div id="aes-pipe-MixColumns" class="smooth-node aes-step-pill">4. MixColumns</div>
+              <div id="aes-pipe-AddRoundKey" class="smooth-node aes-step-pill">5. AddRoundKey</div>
+            </div>
+
+            <div class="aes-compare-grid">
+              <div id="aes-before-card" class="smooth-node aes-matrix-card">
+                <div class="field-label" style="text-align: center; margin-bottom: 0;">Ma trận trước</div>
+                <div id="aes-before-grid" class="aes-4x4"></div>
+              </div>
+
+              <div id="aes-calc-card" class="smooth-node calc-card" style="display: flex; flex-direction: column; justify-content: space-between; gap: 10px; border-width: 2px;">
+                <div class="inline-helper">
+                  <span style="font-weight: 700; color: var(--primary);">Phép tính biến đổi</span>
+                  <span id="aes-substep-pill" class="mono step-badge" style="padding: 3px 8px;">--</span>
+                </div>
+                <pre id="aes-calc-detail" class="mono calc-pre" style="margin-top: 0; flex: 1;">Nhấn "Chạy thuật toán" để xem chi tiết từng phép biến đổi byte của AES.</pre>
+                <div style="font-size: 0.74rem; color: var(--text-muted);">
+                  <span>Round Key: </span>
+                  <span id="aes-rk-hex" class="mono" style="font-weight: 700; color: var(--text-main); word-break: break-all;">--------------------------------</span>
+                </div>
+              </div>
+
+              <div id="aes-after-card" class="smooth-node aes-matrix-card">
+                <div class="field-label" style="text-align: center; margin-bottom: 0;">Ma trận sau</div>
+                <div id="aes-after-grid" class="aes-4x4"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script defer src="js/mock-data.js"></script>
+  <script defer src="js/animators/playfair-anim.js"></script>
+  <script defer src="js/animators/rsa-anim.js"></script>
+  <script defer src="js/animators/symmetric-anim.js"></script>
+  <script defer src="js/main.js"></script>
+</body>
+</html>
